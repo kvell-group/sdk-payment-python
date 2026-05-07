@@ -2,7 +2,7 @@ import pytest
 
 from sdk_payment_python.exceptions import KvellValidationError
 from sdk_payment_python.models.invoice import Invoice
-from sdk_payment_python.resources.invoices import InvoicesResource
+from sdk_payment_python.resources.payments.invoices import InvoicesResource
 from tests.conftest import API_KEY, BASE_HOST, make_response
 
 INVOICE_DATA = {

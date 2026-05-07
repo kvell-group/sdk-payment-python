@@ -2,7 +2,7 @@ import pytest
 
 from sdk_payment_python.exceptions import KvellAPIError, KvellValidationError
 from sdk_payment_python.models.session import AlfaPayResult, SessionCreated, SbpResult
-from sdk_payment_python.resources.session import SessionResource
+from sdk_payment_python.resources.payments.session import SessionResource
 from tests.conftest import API_KEY, BASE_HOST, make_response
 
 

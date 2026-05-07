@@ -45,3 +45,12 @@ class SbpCheck(KvellModel):
     success: bool | None = None
     phone: str | None = None
     bank_id: str | None = None
+
+
+@dataclass
+class SbpCheckStatus(KvellModel):
+    status: str | None = None
+    fio_nspk: str | None = None
+    nspk_id: str | None = None
+    error_message: str | None = None
+    recipient_account: str | None = None

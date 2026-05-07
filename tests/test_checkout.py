@@ -2,7 +2,7 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from sdk_payment_python.resources.checkout import CheckoutResource
+from sdk_payment_python.resources.payments.checkout import CheckoutResource
 from sdk_payment_python.utils import KvellUtils
 from tests.conftest import API_KEY, CHECKOUT_HOST, SECRET_KEY, make_response
 

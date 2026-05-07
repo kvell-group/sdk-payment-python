@@ -2,32 +2,105 @@ from __future__ import annotations
 
 import httpx
 
-from sdk_payment_python.resources.balance import AsyncBalanceResource, BalanceResource
-from sdk_payment_python.resources.checkout import AsyncCheckoutResource, CheckoutResource
-from sdk_payment_python.resources.customers import AsyncCustomersResource, CustomersResource
-from sdk_payment_python.resources.invoices import AsyncInvoicesResource, InvoicesResource
-from sdk_payment_python.resources.payouts import AsyncPayoutsResource, PayoutsResource
-from sdk_payment_python.resources.qr import AsyncQRResource, QRResource
-from sdk_payment_python.resources.session import AsyncSessionResource, SessionResource
-from sdk_payment_python.resources.transactions import AsyncTransactionsResource, TransactionsResource
+from sdk_payment_python.resources.customers.customers import AsyncCustomersResource, CustomersResource
+from sdk_payment_python.resources.issue_card.issue_card import AsyncIssueCardResource, IssueCardResource
+from sdk_payment_python.resources.payments.checkout import AsyncCheckoutResource, CheckoutResource
+from sdk_payment_python.resources.payments.invoices import AsyncInvoicesResource, InvoicesResource
+from sdk_payment_python.resources.payments.qr import AsyncQRResource, QRResource
+from sdk_payment_python.resources.payments.session import AsyncSessionResource, SessionResource
+from sdk_payment_python.resources.payments.transactions import AsyncTransactionsResource, TransactionsResource
+from sdk_payment_python.resources.payouts.balance import AsyncBalanceResource, BalanceResource
+from sdk_payment_python.resources.payouts.card import AsyncPayoutsCardResource, PayoutsCardResource
+from sdk_payment_python.resources.payouts.certificate import AsyncPayoutCertificateResource, PayoutCertificateResource
+from sdk_payment_python.resources.payouts.drafts import AsyncPayoutDraftsResource, PayoutDraftsResource
+from sdk_payment_python.resources.payouts.limits import AsyncLimitsResource, LimitsResource
+from sdk_payment_python.resources.payouts.sbp import AsyncPayoutsSbpResource, PayoutsSbpResource
+from sdk_payment_python.resources.smz.smz import AsyncSmzResource, SmzResource
 from sdk_payment_python.settings import KvellSettings
 
 
+class _Payments:
+    checkout: CheckoutResource
+    session: SessionResource
+    invoices: InvoicesResource
+    transactions: TransactionsResource
+    qr: QRResource
+
+    def __init__(self, settings: KvellSettings, http: httpx.Client):
+        self.checkout = CheckoutResource(settings, http, settings.get_payment_host())
+        self.session = SessionResource(settings, http, settings.get_status_host())
+        self.invoices = InvoicesResource(settings, http, settings.get_status_host())
+        self.transactions = TransactionsResource(settings, http, settings.get_status_host(), settings.get_baas_host())
+        self.qr = QRResource(settings, http, settings.get_status_host())
+
+
+class _Payouts:
+    card: PayoutsCardResource
+    sbp: PayoutsSbpResource
+    balance: BalanceResource
+    drafts: PayoutDraftsResource
+    limits: LimitsResource
+    certificate: PayoutCertificateResource
+
+    def __init__(self, settings: KvellSettings, http: httpx.Client):
+        self.card = PayoutsCardResource(settings, http, settings.get_payout_host())
+        self.sbp = PayoutsSbpResource(settings, http, settings.get_payout_host())
+        self.balance = BalanceResource(settings, http, settings.get_balance_host())
+        self.drafts = PayoutDraftsResource(settings, http, settings.get_baas_host())
+        self.limits = LimitsResource(settings, http, settings.get_baas_host())
+        self.certificate = PayoutCertificateResource(settings, http, settings.get_status_host())
+
+
+class _AsyncPayments:
+    checkout: AsyncCheckoutResource
+    session: AsyncSessionResource
+    invoices: AsyncInvoicesResource
+    transactions: AsyncTransactionsResource
+    qr: AsyncQRResource
+
+    def __init__(self, settings: KvellSettings, http: httpx.AsyncClient):
+        self.checkout = AsyncCheckoutResource(settings, http, settings.get_payment_host())
+        self.session = AsyncSessionResource(settings, http, settings.get_status_host())
+        self.invoices = AsyncInvoicesResource(settings, http, settings.get_status_host())
+        self.transactions = AsyncTransactionsResource(
+            settings, http, settings.get_status_host(), settings.get_baas_host()
+        )
+        self.qr = AsyncQRResource(settings, http, settings.get_status_host())
+
+
+class _AsyncPayouts:
+    card: AsyncPayoutsCardResource
+    sbp: AsyncPayoutsSbpResource
+    balance: AsyncBalanceResource
+    drafts: AsyncPayoutDraftsResource
+    limits: AsyncLimitsResource
+    certificate: AsyncPayoutCertificateResource
+
+    def __init__(self, settings: KvellSettings, http: httpx.AsyncClient):
+        self.card = AsyncPayoutsCardResource(settings, http, settings.get_payout_host())
+        self.sbp = AsyncPayoutsSbpResource(settings, http, settings.get_payout_host())
+        self.balance = AsyncBalanceResource(settings, http, settings.get_balance_host())
+        self.drafts = AsyncPayoutDraftsResource(settings, http, settings.get_baas_host())
+        self.limits = AsyncLimitsResource(settings, http, settings.get_baas_host())
+        self.certificate = AsyncPayoutCertificateResource(settings, http, settings.get_status_host())
+
+
 class KvellPayment:
+    payments: _Payments
+    payouts: _Payouts
+    customers: CustomersResource
+    smz: SmzResource
+    issue_card: IssueCardResource
+
     def __init__(self, settings: KvellSettings, timeout: float = 30.0):
         self._http = httpx.Client(timeout=timeout)
-        self.checkout = CheckoutResource(settings, self._http, settings.get_payment_host())
-        self.session = SessionResource(settings, self._http, settings.get_status_host())
-        self.invoices = InvoicesResource(settings, self._http, settings.get_status_host())
-        self.transactions = TransactionsResource(
-            settings, self._http, settings.get_status_host(), settings.get_baas_host()
-        )
-        self.qr = QRResource(settings, self._http, settings.get_status_host())
-        self.payouts = PayoutsResource(settings, self._http, settings.get_payout_host())
-        self.balance = BalanceResource(settings, self._http, settings.get_balance_host())
+        self.payments = _Payments(settings, self._http)
+        self.payouts = _Payouts(settings, self._http)
         self.customers = CustomersResource(
             settings, self._http, settings.get_status_host(), settings.get_customer_host()
         )
+        self.smz = SmzResource(settings, self._http, settings.get_baas_host())
+        self.issue_card = IssueCardResource(settings, self._http, settings.get_baas_host(), settings.get_payout_host())
 
     def close(self) -> None:
         self._http.close()
@@ -40,19 +113,22 @@ class KvellPayment:
 
 
 class AsyncKvellPayment:
+    payments: _AsyncPayments
+    payouts: _AsyncPayouts
+    customers: AsyncCustomersResource
+    smz: AsyncSmzResource
+    issue_card: AsyncIssueCardResource
+
     def __init__(self, settings: KvellSettings, timeout: float = 30.0):
         self._http = httpx.AsyncClient(timeout=timeout)
-        self.checkout = AsyncCheckoutResource(settings, self._http, settings.get_payment_host())
-        self.session = AsyncSessionResource(settings, self._http, settings.get_status_host())
-        self.invoices = AsyncInvoicesResource(settings, self._http, settings.get_status_host())
-        self.transactions = AsyncTransactionsResource(
-            settings, self._http, settings.get_status_host(), settings.get_baas_host()
-        )
-        self.qr = AsyncQRResource(settings, self._http, settings.get_status_host())
-        self.payouts = AsyncPayoutsResource(settings, self._http, settings.get_payout_host())
-        self.balance = AsyncBalanceResource(settings, self._http, settings.get_balance_host())
+        self.payments = _AsyncPayments(settings, self._http)
+        self.payouts = _AsyncPayouts(settings, self._http)
         self.customers = AsyncCustomersResource(
             settings, self._http, settings.get_status_host(), settings.get_customer_host()
+        )
+        self.smz = AsyncSmzResource(settings, self._http, settings.get_baas_host())
+        self.issue_card = AsyncIssueCardResource(
+            settings, self._http, settings.get_baas_host(), settings.get_payout_host()
         )
 
     async def close(self) -> None:

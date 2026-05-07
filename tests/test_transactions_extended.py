@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from sdk_payment_python.models.transaction import Transaction
-from sdk_payment_python.resources.transactions import TransactionsResource
+from sdk_payment_python.resources.payments.transactions import TransactionsResource
 from tests.conftest import BASE_HOST, make_response
 
 BAAS_HOST = "https://api.baas.kvell.group"

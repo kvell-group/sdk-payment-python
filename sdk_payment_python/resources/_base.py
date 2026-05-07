@@ -2,6 +2,7 @@ import httpx
 
 from sdk_payment_python.exceptions import KvellAPIError, KvellValidationError
 from sdk_payment_python.settings import KvellSettings
+from sdk_payment_python.utils import KvellUtils
 
 
 class BaseResource:
@@ -21,6 +22,10 @@ class BaseResource:
 
     def _key_headers(self) -> dict:
         return {"X-Api-Key": self._settings.get_api_key()}
+
+    def _rsa_headers(self, body: dict) -> dict:
+        sig = KvellUtils.create_rsa_signature(self._settings.get_private_key(), body)
+        return {"X-Api-Key": self._settings.get_api_key(), "X-Signature": sig}
 
     def _handle_response(self, response: httpx.Response) -> dict:
         if response.status_code == 422:
@@ -67,6 +72,10 @@ class AsyncBaseResource:
 
     def _key_headers(self) -> dict:
         return {"X-Api-Key": self._settings.get_api_key()}
+
+    def _rsa_headers(self, body: dict) -> dict:
+        sig = KvellUtils.create_rsa_signature(self._settings.get_private_key(), body)
+        return {"X-Api-Key": self._settings.get_api_key(), "X-Signature": sig}
 
     def _handle_response(self, response: httpx.Response) -> dict:
         if response.status_code == 422:

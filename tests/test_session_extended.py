@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from sdk_payment_python.models.session import SbpResult
-from sdk_payment_python.resources.session import SessionResource
+from sdk_payment_python.resources.payments.session import SessionResource
 from tests.conftest import BASE_HOST, make_response
 
 

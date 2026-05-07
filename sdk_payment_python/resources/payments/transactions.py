@@ -99,6 +99,18 @@ class TransactionsResource(BaseResource):
             body["extra_data"] = extra_data
         return Transaction.from_dict(self._post("/v1/orders/rebill-from-profile", body, self._auth_headers(sig)))
 
+    def registry(self, email: str, transactions: list[str] | None = None, orders: list[str] | None = None) -> None:
+        body: dict = {"email": email}
+        if transactions is not None:
+            body["transactions"] = transactions
+        if orders is not None:
+            body["orders"] = orders
+        sig = KvellUtils.create_signature_by_json_body(
+            self._settings.get_api_key(), self._settings.get_secret_key(), body
+        )
+        url = f"{self._baas_host}/v1/registries/transactions/pdf"
+        self._handle_response(self._http.post(url, json=body, headers=self._auth_headers(sig)))
+
 
 class AsyncTransactionsResource(AsyncBaseResource):
     def __init__(self, settings: KvellSettings, http, host: str, baas_host: str | None = None):
@@ -192,3 +204,17 @@ class AsyncTransactionsResource(AsyncBaseResource):
         if extra_data is not None:
             body["extra_data"] = extra_data
         return Transaction.from_dict(await self._post("/v1/orders/rebill-from-profile", body, self._auth_headers(sig)))
+
+    async def registry(
+        self, email: str, transactions: list[str] | None = None, orders: list[str] | None = None
+    ) -> None:
+        body: dict = {"email": email}
+        if transactions is not None:
+            body["transactions"] = transactions
+        if orders is not None:
+            body["orders"] = orders
+        sig = KvellUtils.create_signature_by_json_body(
+            self._settings.get_api_key(), self._settings.get_secret_key(), body
+        )
+        url = f"{self._baas_host}/v1/registries/transactions/pdf"
+        self._handle_response(await self._http.post(url, json=body, headers=self._auth_headers(sig)))

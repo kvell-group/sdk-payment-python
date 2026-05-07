@@ -4,7 +4,7 @@ import pytest
 
 from sdk_payment_python.models.customer import Customer, CustomerCard
 from sdk_payment_python.models.transaction import Transaction
-from sdk_payment_python.resources.customers import CustomersResource
+from sdk_payment_python.resources.customers.customers import CustomersResource
 from tests.conftest import BASE_HOST, make_response
 
 CUSTOMER_HOST = "https://customer.pay.kvell.group"
@@ -181,3 +181,52 @@ class TestCustomersCardPayout:
         mock_http.post.return_value = make_response(200, TX_DATA)
         customers.card_payout("cust-abc", "tok-xyz", "tx-cust", 2000, "Card payout")
         assert mock_http.post.call_args[0][0] == f"{BASE_HOST}/v1/customers/cards/payout"
+
+
+class TestCustomersCardAuthorizeUrl:
+    def test_returns_string(self, customers):
+        url = customers.card_authorize_url("cust-abc", "tx-1", 1000, "Привязка", "https://ok", "https://fail")
+        assert isinstance(url, str)
+
+    def test_url_contains_correct_host_and_path(self, customers):
+        url = customers.card_authorize_url("cust-abc", "tx-1", 1000, "Привязка", "https://ok", "https://fail")
+        assert url.startswith(f"{CUSTOMER_HOST}/bind/card/authorize?")
+
+    def test_url_contains_required_params(self, customers):
+        url = customers.card_authorize_url("cust-abc", "tx-1", 1000, "Привязка", "https://ok", "https://fail")
+        assert "customer_key=cust-abc" in url
+        assert "transaction=tx-1" in url
+        assert "amount=1000" in url
+        assert "signature=" in url
+
+    def test_auto_return_included_when_provided(self, customers):
+        url = customers.card_authorize_url(
+            "cust-abc", "tx-1", 1000, "Привязка", "https://ok", "https://fail", auto_return=5
+        )
+        assert "auto_return=5" in url
+
+    def test_auto_return_omitted_when_none(self, customers):
+        url = customers.card_authorize_url("cust-abc", "tx-1", 1000, "Привязка", "https://ok", "https://fail")
+        assert "auto_return" not in url
+
+
+class TestCustomersCardPreauthorizeUrl:
+    def test_returns_string(self, customers):
+        url = customers.card_preauthorize_url("cust-abc", "tx-1", 0, "Привязка", "https://ok", "https://fail")
+        assert isinstance(url, str)
+
+    def test_url_contains_correct_host_and_path(self, customers):
+        url = customers.card_preauthorize_url("cust-abc", "tx-1", 0, "Привязка", "https://ok", "https://fail")
+        assert url.startswith(f"{CUSTOMER_HOST}/bind/card/preauthorize?")
+
+    def test_url_contains_required_params(self, customers):
+        url = customers.card_preauthorize_url("cust-abc", "tx-1", 0, "Привязка", "https://ok", "https://fail")
+        assert "customer_key=cust-abc" in url
+        assert "signature=" in url
+
+    def test_authorize_and_preauthorize_differ_only_in_path(self, customers):
+        auth = customers.card_authorize_url("cust-abc", "tx-1", 1000, "X", "https://ok", "https://fail")
+        preauth = customers.card_preauthorize_url("cust-abc", "tx-1", 1000, "X", "https://ok", "https://fail")
+        assert "/bind/card/authorize?" in auth
+        assert "/bind/card/preauthorize?" in preauth
+        assert auth.split("?")[1] == preauth.split("?")[1]

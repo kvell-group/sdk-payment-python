@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import urlencode
+
 from sdk_payment_python.models.customer import Customer, CustomerCard
 from sdk_payment_python.models.transaction import Transaction
 from sdk_payment_python.resources._base import AsyncBaseResource, BaseResource
@@ -76,6 +78,71 @@ class CustomersResource(BaseResource):
         sig = KvellUtils.create_signature(self._settings.get_api_key(), self._settings.get_secret_key(), [customer_key])
         return f"{self._customer_host}/card-binding/{customer_key}/{sig}"
 
+    def _card_bind_flow_url(
+        self,
+        path: str,
+        customer_key: str,
+        transaction: str,
+        amount: int,
+        description: str,
+        success_url: str,
+        fail_url: str,
+        auto_return: int | None = None,
+    ) -> str:
+        sig = KvellUtils.create_signature(
+            self._settings.get_api_key(),
+            self._settings.get_secret_key(),
+            [customer_key, transaction, amount, success_url, fail_url],
+        )
+        params: dict = {
+            "api_key": self._settings.get_api_key(),
+            "customer_key": customer_key,
+            "transaction": transaction,
+            "amount": amount,
+            "description": description,
+            "success_url": success_url,
+            "fail_url": fail_url,
+            "signature": sig,
+        }
+        if auto_return is not None:
+            params["auto_return"] = auto_return
+        return f"{self._customer_host}{path}?{urlencode(params)}"
+
+    def card_authorize_url(
+        self,
+        customer_key: str,
+        transaction: str,
+        amount: int,
+        description: str,
+        success_url: str,
+        fail_url: str,
+        auto_return: int | None = None,
+    ) -> str:
+        return self._card_bind_flow_url(
+            "/bind/card/authorize", customer_key, transaction, amount, description, success_url, fail_url, auto_return
+        )
+
+    def card_preauthorize_url(
+        self,
+        customer_key: str,
+        transaction: str,
+        amount: int,
+        description: str,
+        success_url: str,
+        fail_url: str,
+        auto_return: int | None = None,
+    ) -> str:
+        return self._card_bind_flow_url(
+            "/bind/card/preauthorize",
+            customer_key,
+            transaction,
+            amount,
+            description,
+            success_url,
+            fail_url,
+            auto_return,
+        )
+
     def card_payment(
         self,
         customer_key: str,
@@ -127,6 +194,36 @@ class AsyncCustomersResource(AsyncBaseResource):
     def __init__(self, settings: KvellSettings, http, host: str, customer_host: str | None = None):
         super().__init__(settings, http, host)
         self._customer_host = (customer_host or host).rstrip("/")
+
+    def _card_bind_flow_url(
+        self,
+        path: str,
+        customer_key: str,
+        transaction: str,
+        amount: int,
+        description: str,
+        success_url: str,
+        fail_url: str,
+        auto_return: int | None = None,
+    ) -> str:
+        sig = KvellUtils.create_signature(
+            self._settings.get_api_key(),
+            self._settings.get_secret_key(),
+            [customer_key, transaction, amount, success_url, fail_url],
+        )
+        params: dict = {
+            "api_key": self._settings.get_api_key(),
+            "customer_key": customer_key,
+            "transaction": transaction,
+            "amount": amount,
+            "description": description,
+            "success_url": success_url,
+            "fail_url": fail_url,
+            "signature": sig,
+        }
+        if auto_return is not None:
+            params["auto_return"] = auto_return
+        return f"{self._customer_host}{path}?{urlencode(params)}"
 
     async def create(
         self,
@@ -193,6 +290,41 @@ class AsyncCustomersResource(AsyncBaseResource):
     def card_bind_url(self, customer_key: str) -> str:
         sig = KvellUtils.create_signature(self._settings.get_api_key(), self._settings.get_secret_key(), [customer_key])
         return f"{self._customer_host}/card-binding/{customer_key}/{sig}"
+
+    def card_authorize_url(
+        self,
+        customer_key: str,
+        transaction: str,
+        amount: int,
+        description: str,
+        success_url: str,
+        fail_url: str,
+        auto_return: int | None = None,
+    ) -> str:
+        return self._card_bind_flow_url(
+            "/bind/card/authorize", customer_key, transaction, amount, description, success_url, fail_url, auto_return
+        )
+
+    def card_preauthorize_url(
+        self,
+        customer_key: str,
+        transaction: str,
+        amount: int,
+        description: str,
+        success_url: str,
+        fail_url: str,
+        auto_return: int | None = None,
+    ) -> str:
+        return self._card_bind_flow_url(
+            "/bind/card/preauthorize",
+            customer_key,
+            transaction,
+            amount,
+            description,
+            success_url,
+            fail_url,
+            auto_return,
+        )
 
     async def card_payment(
         self,

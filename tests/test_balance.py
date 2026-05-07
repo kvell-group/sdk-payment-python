@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from sdk_payment_python.models.balance import Balance
-from sdk_payment_python.resources.balance import BalanceResource
+from sdk_payment_python.resources.payouts.balance import BalanceResource
 from tests.conftest import BASE_HOST, make_response
 
 BALANCE_DATA = {"amount": 100000, "currency": "RUB", "hold": 5000, "available": 95000}
