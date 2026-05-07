@@ -1,0 +1,57 @@
+[project]
+name = "sdk-payment-python"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "httpx>=0.28.1",
+    "pycryptodome>=3.23.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sdk_payment_python"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "pylint>=3.3.9",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+exclude = [
+    ".venv",
+    "alembic",
+]
+
+[tool.ruff.lint]
+extend-select = [
+   "C90",    # mccabe
+   "N",      # pep8-naming
+   "B",      # bugbear
+   "C4",     # comprehensions
+   "DTZ",    # datetimez
+   "EM",     # error-messages
+   "PIE",    # flake8-pie
+   "SLF",    # flake8-self
+   "ERA",    # eradicate commented out code
+   "TRY",    # tryceratops
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = ["S101"]  # use of `assert`
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.bandit]
+skips = ["B413", "B101", "B107"]
+exclude_dirs = [".venv", "tests"]
