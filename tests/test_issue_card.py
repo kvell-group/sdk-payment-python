@@ -8,7 +8,7 @@ from sdk_payment_python.models.issue_card import IssueCardApplication, IssueCard
 from sdk_payment_python.resources.issue_card.issue_card import IssueCardResource
 from tests.conftest import BASE_HOST, make_response
 
-PAYOUT_HOST = "http://payout.pay.kvell.group"
+API_HOST = "http://api.pay.kvell.group"
 
 APP_DATA = {"id": "app-123", "status": "pending", "request_id": "req-001"}
 DOCS_DATA = {"url": "https://example.com/docs/sign"}
@@ -21,7 +21,7 @@ JSON_SIG_PATCH = "sdk_payment_python.utils.KvellUtils.create_signature_by_json_b
 
 @pytest.fixture
 def issue_card(settings, mock_http):
-    return IssueCardResource(settings, mock_http, BASE_HOST, PAYOUT_HOST)
+    return IssueCardResource(settings, mock_http, BASE_HOST, API_HOST)
 
 
 class TestIssueCardCreate:
@@ -101,11 +101,11 @@ class TestIssueCardPayout:
             assert isinstance(result, IssueCardPayout)
             assert result.amount == 10000
 
-    def test_posts_to_payout_host(self, issue_card, mock_http):
+    def test_posts_to_api_host(self, issue_card, mock_http):
         with patch(RSA_PATCH, return_value="rsa-sig"):
             mock_http.post.return_value = make_response(200, PAYOUT_DATA)
             issue_card.payout("card-1", 10000, "tx-001", "Выплата")
-            assert mock_http.post.call_args[0][0] == f"{PAYOUT_HOST}/v1/orders/payout/issue-card"
+            assert mock_http.post.call_args[0][0] == f"{API_HOST}/v1/orders/payout/issue-card"
 
     def test_body_contains_required_fields(self, issue_card, mock_http):
         with patch(RSA_PATCH, return_value="rsa-sig"):

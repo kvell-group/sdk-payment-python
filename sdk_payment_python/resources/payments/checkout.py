@@ -72,9 +72,23 @@ class _CheckoutMixin:
         phone: str | None = None,
         customer_key: str | None = None,
         auto_return: int | None = None,
+        extra_data: dict | None = None,
+        fiscal_data: dict | None = None,
+        split_data: list | None = None,
     ) -> str:
         params = self._params(
-            amount, transaction, description, success_url, fail_url, expires_at, phone, customer_key, auto_return
+            amount,
+            transaction,
+            description,
+            success_url,
+            fail_url,
+            expires_at,
+            phone,
+            customer_key,
+            auto_return,
+            extra_data,
+            fiscal_data,
+            split_data,
         )
         return f"{self._host}/checkout?{urlencode(params)}"
 

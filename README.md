@@ -51,12 +51,10 @@ settings = KvellSettings(
     api_key="...",
     secret_key="...",
     private_key="-----BEGIN RSA PRIVATE KEY-----\n...",  # required for payouts
-    payment_host="https://pay.kvell.group",              # checkout
-    status_host="https://api.pay.kvell.group",           # payments, invoices, sessions
-    payout_host="https://api.pay.kvell.group",           # payouts
-    balance_host="https://api.pay.kvell.group",          # balance
-    customer_host="https://customer.pay.kvell.group",    # card binding form
-    baas_host="https://api.baas.kvell.group",            # transaction list
+    pay_host="https://pay.kvell.group",  # checkout
+    api_host="https://api.pay.kvell.group",  # payments, payouts, invoices, sessions, balance
+    customer_host="https://customer.pay.kvell.group",  # card binding form
+    baas_host="https://api.baas.kvell.group",  # transaction list
 )
 ```
 

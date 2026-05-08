@@ -6,9 +6,9 @@ from sdk_payment_python.utils import KvellUtils
 
 
 class IssueCardResource(BaseResource):
-    def __init__(self, settings, http, baas_host: str, payout_host: str):
+    def __init__(self, settings, http, baas_host: str, api_host: str):
         super().__init__(settings, http, baas_host)
-        self._payout_host = payout_host.rstrip("/")
+        self._api_host = api_host.rstrip("/")
 
     def create(self, request_id: str, additional_data: dict) -> IssueCardApplication:
         body = {"request_id": request_id, "additional_data": additional_data}
@@ -56,15 +56,15 @@ class IssueCardResource(BaseResource):
         headers = {"X-Api-Key": self._settings.get_api_key(), "X-Signature": sig}
         return IssueCardPayout.from_dict(
             self._handle_response(
-                self._http.post(f"{self._payout_host}/v1/orders/payout/issue-card", json=body, headers=headers)
+                self._http.post(f"{self._api_host}/v1/orders/payout/issue-card", json=body, headers=headers)
             )
         )
 
 
 class AsyncIssueCardResource(AsyncBaseResource):
-    def __init__(self, settings, http, baas_host: str, payout_host: str):
+    def __init__(self, settings, http, baas_host: str, api_host: str):
         super().__init__(settings, http, baas_host)
-        self._payout_host = payout_host.rstrip("/")
+        self._api_host = api_host.rstrip("/")
 
     async def create(self, request_id: str, additional_data: dict) -> IssueCardApplication:
         body = {"request_id": request_id, "additional_data": additional_data}
@@ -114,6 +114,6 @@ class AsyncIssueCardResource(AsyncBaseResource):
         headers = {"X-Api-Key": self._settings.get_api_key(), "X-Signature": sig}
         return IssueCardPayout.from_dict(
             self._handle_response(
-                await self._http.post(f"{self._payout_host}/v1/orders/payout/issue-card", json=body, headers=headers)
+                await self._http.post(f"{self._api_host}/v1/orders/payout/issue-card", json=body, headers=headers)
             )
         )
