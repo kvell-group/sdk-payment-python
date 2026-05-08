@@ -6,7 +6,7 @@
 
 ![CI](https://github.com/kvell-group/sdk-payment-python/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![Release](https://img.shields.io/github/v/release/kvell-group/sdk-payment-python)
+![Release](https://img.shields.io/github/v/release/kvell-group/sdk-payment-python?cacheSeconds=0)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 Python SDK для [KVELL Payment API](https://docs.kvell.group/).
