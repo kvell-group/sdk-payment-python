@@ -22,46 +22,6 @@ def transactions(settings, mock_http):
     return TransactionsResource(settings, mock_http, BASE_HOST, BAAS_HOST)
 
 
-class TestTransactionsRebillExtended:
-    def test_rebill_with_fiscal_data(self, transactions, mock_http):
-        mock_http.post.return_value = make_response(200, TX_DATA)
-        transactions.rebill("tx-parent", "tx-child", 2000, "Recurring", fiscal_data={"vat": 20})
-        body = mock_http.post.call_args[1]["json"]
-        assert body["fiscal_data"] == {"vat": 20}
-
-    def test_rebill_with_extra_data(self, transactions, mock_http):
-        mock_http.post.return_value = make_response(200, TX_DATA)
-        transactions.rebill("tx-parent", "tx-child", 2000, "Recurring", extra_data={"order_id": "99"})
-        body = mock_http.post.call_args[1]["json"]
-        assert body["extra_data"] == {"order_id": "99"}
-
-    def test_rebill_without_optional_fields(self, transactions, mock_http):
-        mock_http.post.return_value = make_response(200, TX_DATA)
-        transactions.rebill("tx-parent", "tx-child", 2000, "Recurring")
-        body = mock_http.post.call_args[1]["json"]
-        assert "fiscal_data" not in body
-        assert "extra_data" not in body
-
-
-class TestTransactionsRebillFromProfile:
-    def test_returns_transaction(self, transactions, mock_http):
-        mock_http.post.return_value = make_response(200, {**TX_DATA, "transaction": "tx-new"})
-        result = transactions.rebill_from_profile("tx-parent", "tx-new", 3000, "Rebill", "cust-1")
-        assert isinstance(result, Transaction)
-        assert result.transaction == "tx-new"
-
-    def test_body_contains_customer_key(self, transactions, mock_http):
-        mock_http.post.return_value = make_response(200, TX_DATA)
-        transactions.rebill_from_profile("tx-parent", "tx-child", 2000, "Rebill", "cust-1")
-        body = mock_http.post.call_args[1]["json"]
-        assert body["customer_key"] == "cust-1"
-
-    def test_posts_to_correct_path(self, transactions, mock_http):
-        mock_http.post.return_value = make_response(200, TX_DATA)
-        transactions.rebill_from_profile("tx-parent", "tx-child", 2000, "Rebill", "cust-1")
-        assert mock_http.post.call_args[0][0] == f"{BASE_HOST}/v1/orders/rebill-from-profile"
-
-
 class TestTransactionsList:
     def test_returns_list_of_transactions(self, transactions, mock_http):
         mock_http.get.return_value = make_response(200, [TX_DATA, TX_DATA])

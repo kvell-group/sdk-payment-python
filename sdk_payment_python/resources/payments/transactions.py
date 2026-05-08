@@ -42,63 +42,6 @@ class TransactionsResource(BaseResource):
         items = data if isinstance(data, list) else data.get("items", [])
         return [Transaction.from_dict(item) for item in items]
 
-    def refund(self, transaction: str, amount: int | None = None) -> Transaction:
-        sig = KvellUtils.create_signature(self._settings.get_api_key(), self._settings.get_secret_key(), [transaction])
-        body: dict = {}
-        if amount is not None:
-            body["amount"] = amount
-        return Transaction.from_dict(self._post(f"/v1/orders/{transaction}/refund", body, self._auth_headers(sig)))
-
-    def rebill(
-        self,
-        parent_transaction: str,
-        transaction: str,
-        amount: int,
-        description: str,
-        fiscal_data: dict | None = None,
-        extra_data: dict | None = None,
-    ) -> Transaction:
-        sig = KvellUtils.create_signature(
-            self._settings.get_api_key(), self._settings.get_secret_key(), [transaction, amount]
-        )
-        body: dict = {
-            "parent_transaction": parent_transaction,
-            "transaction": transaction,
-            "amount": amount,
-            "description": description,
-        }
-        if fiscal_data is not None:
-            body["fiscal_data"] = fiscal_data
-        if extra_data is not None:
-            body["extra_data"] = extra_data
-        return Transaction.from_dict(self._post("/v1/orders/rebill", body, self._auth_headers(sig)))
-
-    def rebill_from_profile(
-        self,
-        parent_transaction: str,
-        transaction: str,
-        amount: int,
-        description: str,
-        customer_key: str,
-        fiscal_data: dict | None = None,
-        extra_data: dict | None = None,
-    ) -> Transaction:
-        sig = KvellUtils.create_signature(
-            self._settings.get_api_key(), self._settings.get_secret_key(), [transaction, amount]
-        )
-        body: dict = {
-            "parent_transaction": parent_transaction,
-            "transaction": transaction,
-            "amount": amount,
-            "description": description,
-            "customer_key": customer_key,
-        }
-        if fiscal_data is not None:
-            body["fiscal_data"] = fiscal_data
-        if extra_data is not None:
-            body["extra_data"] = extra_data
-        return Transaction.from_dict(self._post("/v1/orders/rebill-from-profile", body, self._auth_headers(sig)))
-
     def registry(self, email: str, transactions: list[str] | None = None, orders: list[str] | None = None) -> None:
         body: dict = {"email": email}
         if transactions is not None:
@@ -145,65 +88,6 @@ class AsyncTransactionsResource(AsyncBaseResource):
         data = self._handle_response(await self._http.get(self._baas_url("/v1/orders"), params=params, headers=headers))
         items = data if isinstance(data, list) else data.get("items", [])
         return [Transaction.from_dict(item) for item in items]
-
-    async def refund(self, transaction: str, amount: int | None = None) -> Transaction:
-        sig = KvellUtils.create_signature(self._settings.get_api_key(), self._settings.get_secret_key(), [transaction])
-        body: dict = {}
-        if amount is not None:
-            body["amount"] = amount
-        return Transaction.from_dict(
-            await self._post(f"/v1/orders/{transaction}/refund", body, self._auth_headers(sig))
-        )
-
-    async def rebill(
-        self,
-        parent_transaction: str,
-        transaction: str,
-        amount: int,
-        description: str,
-        fiscal_data: dict | None = None,
-        extra_data: dict | None = None,
-    ) -> Transaction:
-        sig = KvellUtils.create_signature(
-            self._settings.get_api_key(), self._settings.get_secret_key(), [transaction, amount]
-        )
-        body: dict = {
-            "parent_transaction": parent_transaction,
-            "transaction": transaction,
-            "amount": amount,
-            "description": description,
-        }
-        if fiscal_data is not None:
-            body["fiscal_data"] = fiscal_data
-        if extra_data is not None:
-            body["extra_data"] = extra_data
-        return Transaction.from_dict(await self._post("/v1/orders/rebill", body, self._auth_headers(sig)))
-
-    async def rebill_from_profile(
-        self,
-        parent_transaction: str,
-        transaction: str,
-        amount: int,
-        description: str,
-        customer_key: str,
-        fiscal_data: dict | None = None,
-        extra_data: dict | None = None,
-    ) -> Transaction:
-        sig = KvellUtils.create_signature(
-            self._settings.get_api_key(), self._settings.get_secret_key(), [transaction, amount]
-        )
-        body: dict = {
-            "parent_transaction": parent_transaction,
-            "transaction": transaction,
-            "amount": amount,
-            "description": description,
-            "customer_key": customer_key,
-        }
-        if fiscal_data is not None:
-            body["fiscal_data"] = fiscal_data
-        if extra_data is not None:
-            body["extra_data"] = extra_data
-        return Transaction.from_dict(await self._post("/v1/orders/rebill-from-profile", body, self._auth_headers(sig)))
 
     async def registry(
         self, email: str, transactions: list[str] | None = None, orders: list[str] | None = None

@@ -54,3 +54,17 @@ class SbpCheckStatus(KvellModel):
     nspk_id: str | None = None
     error_message: str | None = None
     recipient_account: str | None = None
+
+
+@dataclass
+class NominalPayout(KvellModel):
+    id: str
+    status: str
+    transaction: str
+    amount: int
+    commission: int | None = None
+    description: str | None = None
+    additional_data: dict | None = None
+    error_code: str | None = None
+    error_message: str | None = None
+    created_at: str | None = None

@@ -7,6 +7,8 @@ from sdk_payment_python.resources.issue_card.issue_card import AsyncIssueCardRes
 from sdk_payment_python.resources.payments.checkout import AsyncCheckoutResource, CheckoutResource
 from sdk_payment_python.resources.payments.invoices import AsyncInvoicesResource, InvoicesResource
 from sdk_payment_python.resources.payments.qr import AsyncQRResource, QRResource
+from sdk_payment_python.resources.payments.recurring import AsyncRecurringResource, RecurringResource
+from sdk_payment_python.resources.payments.refunds import AsyncRefundsResource, RefundsResource
 from sdk_payment_python.resources.payments.session import AsyncSessionResource, SessionResource
 from sdk_payment_python.resources.payments.transactions import AsyncTransactionsResource, TransactionsResource
 from sdk_payment_python.resources.payouts.balance import AsyncBalanceResource, BalanceResource
@@ -14,6 +16,7 @@ from sdk_payment_python.resources.payouts.card import AsyncPayoutsCardResource, 
 from sdk_payment_python.resources.payouts.certificate import AsyncPayoutCertificateResource, PayoutCertificateResource
 from sdk_payment_python.resources.payouts.drafts import AsyncPayoutDraftsResource, PayoutDraftsResource
 from sdk_payment_python.resources.payouts.limits import AsyncLimitsResource, LimitsResource
+from sdk_payment_python.resources.payouts.nominal import AsyncNominalResource, NominalResource
 from sdk_payment_python.resources.payouts.sbp import AsyncPayoutsSbpResource, PayoutsSbpResource
 from sdk_payment_python.resources.smz.smz import AsyncSmzResource, SmzResource
 from sdk_payment_python.settings import KvellSettings
@@ -24,6 +27,8 @@ class _Payments:
     session: SessionResource
     invoices: InvoicesResource
     transactions: TransactionsResource
+    refunds: RefundsResource
+    recurring: RecurringResource
     qr: QRResource
 
     def __init__(self, settings: KvellSettings, http: httpx.Client):
@@ -31,6 +36,8 @@ class _Payments:
         self.session = SessionResource(settings, http, settings.get_api_host())
         self.invoices = InvoicesResource(settings, http, settings.get_api_host())
         self.transactions = TransactionsResource(settings, http, settings.get_api_host(), settings.get_baas_host())
+        self.refunds = RefundsResource(settings, http, settings.get_api_host())
+        self.recurring = RecurringResource(settings, http, settings.get_api_host())
         self.qr = QRResource(settings, http, settings.get_api_host())
 
 
@@ -41,6 +48,7 @@ class _Payouts:
     drafts: PayoutDraftsResource
     limits: LimitsResource
     certificate: PayoutCertificateResource
+    nominal: NominalResource
 
     def __init__(self, settings: KvellSettings, http: httpx.Client):
         self.card = PayoutsCardResource(settings, http, settings.get_api_host())
@@ -49,6 +57,7 @@ class _Payouts:
         self.drafts = PayoutDraftsResource(settings, http, settings.get_baas_host())
         self.limits = LimitsResource(settings, http, settings.get_baas_host())
         self.certificate = PayoutCertificateResource(settings, http, settings.get_api_host())
+        self.nominal = NominalResource(settings, http, settings.get_api_host())
 
 
 class _AsyncPayments:
@@ -56,6 +65,8 @@ class _AsyncPayments:
     session: AsyncSessionResource
     invoices: AsyncInvoicesResource
     transactions: AsyncTransactionsResource
+    refunds: AsyncRefundsResource
+    recurring: AsyncRecurringResource
     qr: AsyncQRResource
 
     def __init__(self, settings: KvellSettings, http: httpx.AsyncClient):
@@ -63,6 +74,8 @@ class _AsyncPayments:
         self.session = AsyncSessionResource(settings, http, settings.get_api_host())
         self.invoices = AsyncInvoicesResource(settings, http, settings.get_api_host())
         self.transactions = AsyncTransactionsResource(settings, http, settings.get_api_host(), settings.get_baas_host())
+        self.refunds = AsyncRefundsResource(settings, http, settings.get_api_host())
+        self.recurring = AsyncRecurringResource(settings, http, settings.get_api_host())
         self.qr = AsyncQRResource(settings, http, settings.get_api_host())
 
 
@@ -73,6 +86,7 @@ class _AsyncPayouts:
     drafts: AsyncPayoutDraftsResource
     limits: AsyncLimitsResource
     certificate: AsyncPayoutCertificateResource
+    nominal: AsyncNominalResource
 
     def __init__(self, settings: KvellSettings, http: httpx.AsyncClient):
         self.card = AsyncPayoutsCardResource(settings, http, settings.get_api_host())
@@ -81,6 +95,7 @@ class _AsyncPayouts:
         self.drafts = AsyncPayoutDraftsResource(settings, http, settings.get_baas_host())
         self.limits = AsyncLimitsResource(settings, http, settings.get_baas_host())
         self.certificate = AsyncPayoutCertificateResource(settings, http, settings.get_api_host())
+        self.nominal = AsyncNominalResource(settings, http, settings.get_api_host())
 
 
 class KvellPayment:
