@@ -32,6 +32,8 @@ class BaseResource:
             raise KvellValidationError(response.json().get("errors", []))
         if response.is_error:
             raise KvellAPIError(response.status_code, response.text)
+        if not response.content:
+            return {}
         return response.json()
 
     def _post(self, path: str, body: dict, headers: dict) -> dict:
@@ -82,6 +84,8 @@ class AsyncBaseResource:
             raise KvellValidationError(response.json().get("errors", []))
         if response.is_error:
             raise KvellAPIError(response.status_code, response.text)
+        if not response.content:
+            return {}
         return response.json()
 
     async def _post(self, path: str, body: dict, headers: dict) -> dict:

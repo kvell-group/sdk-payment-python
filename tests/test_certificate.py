@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, MagicMock
+
+import httpx
 import pytest
 
 from sdk_payment_python.models.certificate import CertificatePdf, CertificateTask
-from sdk_payment_python.resources.payouts.certificate import PayoutCertificateResource
+from sdk_payment_python.resources.payouts.certificate import AsyncPayoutCertificateResource, PayoutCertificateResource
 from tests.conftest import BASE_HOST, make_response
 
 TASK_DATA = {"task_id": "task-123", "status": "processing", "url": None}
@@ -32,6 +35,16 @@ class TestCertificateSendEmail:
         certificate.send_email("tx-123", "user@example.com")
         headers = mock_http.post.call_args[1]["headers"]
         assert "X-Signature" in headers
+
+    def test_does_not_raise_on_empty_body(self, certificate, mock_http):
+        mock_http.post.return_value = make_response(202)
+        certificate.send_email("tx-123", "user@example.com")
+
+    async def test_async_does_not_raise_on_empty_body(self, settings):
+        mock_http = MagicMock(spec=httpx.AsyncClient)
+        mock_http.post = AsyncMock(return_value=make_response(202))
+        resource = AsyncPayoutCertificateResource(settings, mock_http, BASE_HOST)
+        await resource.send_email("tx-123", "user@example.com")
 
 
 class TestCertificateCreateView:

@@ -1,8 +1,11 @@
+from unittest.mock import AsyncMock, MagicMock
+
+import httpx
 import pytest
 
 from sdk_payment_python.exceptions import KvellValidationError
 from sdk_payment_python.models.invoice import Invoice
-from sdk_payment_python.resources.payments.invoices import InvoicesResource
+from sdk_payment_python.resources.payments.invoices import AsyncInvoicesResource, InvoicesResource
 from tests.conftest import API_KEY, BASE_HOST, make_response
 
 INVOICE_DATA = {
@@ -70,3 +73,19 @@ class TestInvoicesCancel:
         mock_http.patch.return_value = make_response(200, {**INVOICE_DATA, "status": "canceled"})
         invoices.cancel("guid-abc")
         assert mock_http.patch.call_args[0][0] == f"{BASE_HOST}/v1/invoices/guid-abc/cancel"
+
+
+class TestAsyncInvoicesCreate:
+    async def test_accepts_dict_delivery_value(self, settings):
+        mock_http = MagicMock(spec=httpx.AsyncClient)
+        mock_http.post = AsyncMock(return_value=make_response(201, INVOICE_DATA))
+        resource = AsyncInvoicesResource(settings, mock_http, BASE_HOST)
+        result = await resource.create(
+            invoice_number="INV-001",
+            amount=5000,
+            description="Test",
+            delivery_value={"email": "user@example.com"},
+        )
+        assert isinstance(result, Invoice)
+        body = mock_http.post.call_args[1]["json"]
+        assert body["delivery_value"] == {"email": "user@example.com"}

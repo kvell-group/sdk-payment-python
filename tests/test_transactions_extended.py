@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, MagicMock
+
+import httpx
 import pytest
 
 from sdk_payment_python.models.transaction import Transaction
-from sdk_payment_python.resources.payments.transactions import TransactionsResource
+from sdk_payment_python.resources.payments.transactions import AsyncTransactionsResource, TransactionsResource
 from tests.conftest import BASE_HOST, make_response
 
 BAAS_HOST = "https://api.baas.kvell.group"
@@ -65,3 +68,15 @@ class TestTransactionsList:
         transactions.list()
         url = mock_http.get.call_args[0][0]
         assert url == f"{BAAS_HOST}/v1/orders"
+
+
+class TestTransactionsRegistry:
+    def test_does_not_raise_on_empty_body(self, transactions, mock_http):
+        mock_http.post.return_value = make_response(202)
+        transactions.registry("report@example.com", transactions=["tx-123"])
+
+    async def test_async_does_not_raise_on_empty_body(self, settings):
+        mock_http = MagicMock(spec=httpx.AsyncClient)
+        mock_http.post = AsyncMock(return_value=make_response(202))
+        resource = AsyncTransactionsResource(settings, mock_http, BASE_HOST, BAAS_HOST)
+        await resource.registry("report@example.com", transactions=["tx-123"])

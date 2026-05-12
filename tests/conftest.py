@@ -24,6 +24,7 @@ def make_response(status_code: int = 200, json_data: dict | None = None) -> Magi
     response.is_error = status_code >= 400
     response.json.return_value = json_data or {}
     response.text = str(json_data)
+    response.content = b"" if json_data is None else b"{}"
     return response
 
 

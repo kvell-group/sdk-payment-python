@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from urllib.parse import urlencode
 
 from sdk_payment_python.resources._base import AsyncBaseResource, BaseResource
@@ -90,6 +91,9 @@ class _CheckoutMixin:
             fiscal_data,
             split_data,
         )
+        for key in ("extra_data", "fiscal_data", "split_data"):
+            if key in params:
+                params[key] = json.dumps(params[key], separators=(",", ":"), ensure_ascii=False)
         return f"{self._host}/checkout?{urlencode(params)}"
 
     def build_form_fields(

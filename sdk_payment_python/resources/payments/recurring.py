@@ -106,6 +106,4 @@ class AsyncRecurringResource(AsyncBaseResource):
             body["fiscal_data"] = fiscal_data
         if extra_data is not None:
             body["extra_data"] = extra_data
-        return Transaction.from_dict(
-            await self._post("/v1/orders/rebill-from-profile", body, self._auth_headers(sig))
-        )
+        return Transaction.from_dict(await self._post("/v1/orders/rebill-from-profile", body, self._auth_headers(sig)))

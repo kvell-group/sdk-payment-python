@@ -48,7 +48,7 @@ class AsyncInvoicesResource(AsyncBaseResource):
         amount: int,
         description: str,
         delivery_type: str | None = None,
-        delivery_value: str | None = None,
+        delivery_value: dict | None = None,
         extra_data: dict | None = None,
         fiscal_data: dict | None = None,
         split_data: list | None = None,

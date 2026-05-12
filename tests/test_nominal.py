@@ -45,10 +45,7 @@ class TestNominalPayoutByRequisites:
                 fio="Иванов Иван Иванович",
                 inn="771234567890",
                 kvd="1",
-                account_number=ACCOUNT["account_number"],
-                bank_bic=ACCOUNT["bank_bic"],
-                bank_cor_account=ACCOUNT["bank_cor_account"],
-                bank_name=ACCOUNT["bank_name"],
+                account=ACCOUNT,
                 **kwargs,
             )
 

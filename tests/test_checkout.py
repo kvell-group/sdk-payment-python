@@ -1,3 +1,4 @@
+import json
 from urllib.parse import parse_qs, urlparse
 
 import pytest
@@ -61,6 +62,21 @@ class TestBuildUrl:
     def test_auto_return(self, checkout):
         url = checkout.build_url(**REQUIRED, auto_return=5)
         assert "auto_return=5" in url
+
+    def test_extra_data_json_encoded_in_url(self, checkout):
+        url = checkout.build_url(**REQUIRED, extra_data={"order_id": 42})
+        qs = parse_qs(urlparse(url).query)
+        assert json.loads(qs["extra_data"][0]) == {"order_id": 42}
+
+    def test_fiscal_data_json_encoded_in_url(self, checkout):
+        url = checkout.build_url(**REQUIRED, fiscal_data={"inn": "123456789012"})
+        qs = parse_qs(urlparse(url).query)
+        assert json.loads(qs["fiscal_data"][0]) == {"inn": "123456789012"}
+
+    def test_split_data_json_encoded_in_url(self, checkout):
+        url = checkout.build_url(**REQUIRED, split_data=[{"amount": 100, "transaction": "tx-sub"}])
+        qs = parse_qs(urlparse(url).query)
+        assert json.loads(qs["split_data"][0]) == [{"amount": 100, "transaction": "tx-sub"}]
 
 
 class TestBuildFormFields:

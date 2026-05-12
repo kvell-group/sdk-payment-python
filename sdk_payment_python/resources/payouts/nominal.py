@@ -13,10 +13,7 @@ class NominalResource(BaseResource):
         fio: str,
         inn: str,
         kvd: str,
-        account_number: str,
-        bank_bic: str,
-        bank_cor_account: str,
-        bank_name: str,
+        account: dict,
         snils: str | None = None,
         validate_self_employed: bool | None = None,
         customer: str | None = None,
@@ -31,12 +28,7 @@ class NominalResource(BaseResource):
             "fio": fio,
             "inn": inn,
             "kvd": kvd,
-            "account": {
-                "account_number": account_number,
-                "bank_bic": bank_bic,
-                "bank_cor_account": bank_cor_account,
-                "bank_name": bank_name,
-            },
+            "account": account,
         }
         if snils is not None:
             body["snils"] = snils
@@ -105,10 +97,7 @@ class AsyncNominalResource(AsyncBaseResource):
         fio: str,
         inn: str,
         kvd: str,
-        account_number: str,
-        bank_bic: str,
-        bank_cor_account: str,
-        bank_name: str,
+        account: dict,
         snils: str | None = None,
         validate_self_employed: bool | None = None,
         customer: str | None = None,
@@ -123,12 +112,7 @@ class AsyncNominalResource(AsyncBaseResource):
             "fio": fio,
             "inn": inn,
             "kvd": kvd,
-            "account": {
-                "account_number": account_number,
-                "bank_bic": bank_bic,
-                "bank_cor_account": bank_cor_account,
-                "bank_name": bank_name,
-            },
+            "account": account,
         }
         if snils is not None:
             body["snils"] = snils
