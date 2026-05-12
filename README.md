@@ -326,7 +326,7 @@ print(result.url)
 
 | Метод                                                                                                                               | Возвращает      | Описание                                 |
 |-------------------------------------------------------------------------------------------------------------------------------------|-----------------|------------------------------------------|
-| `payout_by_requisites(transaction, amount, description, fio, inn, kvd, account_number, bank_bic, bank_cor_account, bank_name, ...)` | `NominalPayout` | Выплата по банковским реквизитам         |
+| `payout_by_requisites(transaction, amount, description, fio, inn, kvd, account, ...)` | `NominalPayout` | Выплата по банковским реквизитам         |
 | `payout_sbp(transaction, amount, description, inn, kvd, phone, bank_bic, ...)`                                                      | `NominalPayout` | Выплата через СБП                        |
 
 Опционально для `payout_by_requisites`: `snils`, `validate_self_employed`, `customer`, `tax`, `extra_data`, `fiscal_data`.
@@ -337,8 +337,12 @@ print(result.url)
 payout = client.payouts.nominal.payout_by_requisites(
     transaction="tx-1", amount=100000, description="Выплата по договору №123",
     fio="Иванов Иван Иванович", inn="771234567890", kvd="1",
-    account_number="40817810099910004312", bank_bic="044525225",
-    bank_cor_account="30101810400000000225", bank_name="ПАО Сбербанк",
+    account={
+        "account_number": "40817810099910004312",
+        "bank_bic": "044525225",
+        "bank_cor_account": "30101810400000000225",
+        "bank_name": "ПАО Сбербанк",
+    },
 )
 
 payout = client.payouts.nominal.payout_sbp(

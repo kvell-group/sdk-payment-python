@@ -111,7 +111,7 @@ class _CheckoutMixin:
         fiscal_data: dict | None = None,
         split_data: list | None = None,
     ) -> dict:
-        return self._params(
+        params = self._params(
             amount,
             transaction,
             description,
@@ -125,6 +125,10 @@ class _CheckoutMixin:
             fiscal_data,
             split_data,
         )
+        for key in ("extra_data", "fiscal_data", "split_data"):
+            if key in params:
+                params[key] = json.dumps(params[key], separators=(",", ":"), ensure_ascii=False)
+        return params
 
 
 class CheckoutResource(_CheckoutMixin, BaseResource):

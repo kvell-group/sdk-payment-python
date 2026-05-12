@@ -84,9 +84,17 @@ class TestBuildFormFields:
         fields = checkout.build_form_fields(**REQUIRED)
         assert all(k in fields for k in ("api_key", "amount", "transaction", "signature"))
 
-    def test_extra_data_included(self, checkout):
+    def test_extra_data_json_encoded_in_form_fields(self, checkout):
         fields = checkout.build_form_fields(**REQUIRED, extra_data={"order_id": 42})
-        assert fields["extra_data"] == {"order_id": 42}
+        assert json.loads(fields["extra_data"]) == {"order_id": 42}
+
+    def test_fiscal_data_json_encoded_in_form_fields(self, checkout):
+        fields = checkout.build_form_fields(**REQUIRED, fiscal_data={"inn": "123456789012"})
+        assert json.loads(fields["fiscal_data"]) == {"inn": "123456789012"}
+
+    def test_split_data_json_encoded_in_form_fields(self, checkout):
+        fields = checkout.build_form_fields(**REQUIRED, split_data=[{"amount": 100, "transaction": "tx-sub"}])
+        assert json.loads(fields["split_data"]) == [{"amount": 100, "transaction": "tx-sub"}]
 
     def test_optional_not_included_when_none(self, checkout):
         fields = checkout.build_form_fields(**REQUIRED)
